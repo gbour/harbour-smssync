@@ -60,5 +60,6 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %{_bindir}
+%{_sysconfdir}/xdg/%{name}/%{name}d.conf
 # >> files
 # << files

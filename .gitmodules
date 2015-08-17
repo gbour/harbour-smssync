@@ -1,0 +1,3 @@
+[submodule "daemon/qmqtt"]
+	path = daemon/qmqtt
+	url = git@github.com:gbour/qmqtt.git
