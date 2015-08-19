@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 
 #include "mqttdispatcher.h"
+#include "smslistener.h"
 
 
 int main(int argc, char *argv[])
@@ -34,6 +35,10 @@ int main(int argc, char *argv[])
                               settings.value("port").toInt());
     dispatcher.connect();
     settings.endGroup();
+
+    // SMS listener
+    SmsListener watcher;
+    Q_UNUSED(watcher);
 
     return app.exec();
 }

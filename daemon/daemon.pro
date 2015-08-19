@@ -4,15 +4,19 @@ TARGET = harbour-smssyncd
 
 CONFIG += console \
 #    sailfishapp \
-    link_pkgconfig
+    link_pkgconfig \
+    c++11
 
-QT += core network
+QT += core network dbus
+PKGCONFIG += TelepathyQt5
 
 HEADERS += \
-    src/mqttdispatcher.h
+    src/mqttdispatcher.h \
+    src/smslistener.h
 
 SOURCES += src/daemon.cpp \
-    src/mqttdispatcher.cpp
+    src/mqttdispatcher.cpp \
+    src/smslistener.cpp
 
 include(qmqtt/qmqtt.pri)
 INCLUDEPATH += $$PWD/qmqtt
