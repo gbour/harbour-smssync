@@ -40,6 +40,22 @@ int main(int argc, char *argv[])
     SmsListener watcher;
     Q_UNUSED(watcher);
 
+
+    QObject::connect(&watcher,
+                     SIGNAL(SmsRecv(QString,QString,QString)),
+                     &dispatcher,
+                     SLOT(sendInMessage(QString,QString,QString)));
+
+    QObject::connect(&watcher,
+                     SIGNAL(SmsSent(QString,QString,QString)),
+                     &dispatcher,
+                     SLOT(sendOutMessage(QString,QString,QString)));
+
+    QObject::connect(&watcher,
+                     SIGNAL(SmsAcked(QString)),
+                     &dispatcher,
+                     SLOT(acknowledgement(QString)));
+
     return app.exec();
 }
 
