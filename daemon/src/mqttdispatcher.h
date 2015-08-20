@@ -15,10 +15,24 @@ signals:
 
 public slots:
     void connect();
-    void sendMessage();
+    void sendInMessage(QString id, QString from, QString message) {
+        sendMessage("in", id, from, message);
+    };
+
+    void sendOutMessage(QString id, QString from, QString message) {
+        sendMessage("out", id, from, message);
+    };
+
+    void acknowledgement(QString id);
+
 private:
+    quint16 _msgid;
     QMQTT::Client *client;
 
+    void sendMessage(QString dir, QString id, QString from, QString message);
+    quint16 msgid() {
+        return(_msgid++);
+    }
 };
 
 #endif // MQTTDISPATCHER_H

@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
              << settings.value("server").toString() << ":"
              << settings.value("port").toInt();
 
-    //MQTT
+    //MQTT client
     MqttDispatcher dispatcher(settings.value("server").toString(),
                               settings.value("port").toInt());
     dispatcher.connect();
