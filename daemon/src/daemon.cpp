@@ -33,7 +33,9 @@ int main(int argc, char *argv[])
     //MQTT client
     MqttDispatcher dispatcher(settings.value("deviceid").toString(),
                               settings.value("server").toString(),
-                              settings.value("port").toInt());
+                              settings.value("port").toInt(),
+                              settings.value("ping").toInt(),
+                              settings.value("keepalive").toInt());
     dispatcher.connect();
     settings.endGroup();
 
