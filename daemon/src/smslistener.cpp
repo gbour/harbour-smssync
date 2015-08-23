@@ -90,7 +90,7 @@ void SmsListener::onReceivedMessage(const Tp::ReceivedMessage &msg, const Tp::Te
         qDebug() << "delivery report:" << msg.deliveryDetails().status() <<
                     "from" << msg.deliveryDetails().originalToken();
 
-        if( msg.deliveryDetails().status() == Tp::DeliveryStatusAccepted ) {
+        if( msg.deliveryDetails().status() == Tp::DeliveryStatusDelivered ) {
             emit SmsAcked(msg.deliveryDetails().originalToken());
         }
 
