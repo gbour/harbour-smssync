@@ -9,7 +9,7 @@ class MqttDispatcher : public QObject
     Q_OBJECT
 
 public:
-    explicit MqttDispatcher(QString server, quint32 port = 1883, QObject *parent = 0);
+    explicit MqttDispatcher(QString deviceid, QString server, quint32 port = 1883, QObject *parent = 0);
 
 signals:
 
@@ -27,6 +27,7 @@ public slots:
 
 private:
     quint16 _msgid;
+    QString _deviceid;
     QMQTT::Client *client;
 
     void sendMessage(QString dir, QString id, QString from, QString message);

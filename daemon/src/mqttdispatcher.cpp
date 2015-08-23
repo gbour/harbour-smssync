@@ -7,10 +7,11 @@
 #include "qmqtt/qmqtt_client.h"
 #include "qmqtt/qmqtt_message.h"
 
-MqttDispatcher::MqttDispatcher(QString server, quint32 port, QObject *parent) :
+MqttDispatcher::MqttDispatcher(QString deviceid, QString server, quint32 port, QObject *parent) :
     QObject(parent)
 {
     _msgid = 1;
+    _deviceid = deviceid;
 
     client = new QMQTT::Client(server, port);
     qDebug() << server << port << client;
@@ -34,7 +35,8 @@ void MqttDispatcher::sendMessage(QString dir, QString id, QString from, QString 
     payload["content"] = content;
 
     QJsonDocument jdoc(payload);
-    QMQTT::Message msg(msgid(), "smssync/notify", jdoc.toJson(QJsonDocument::Compact));
+    QMQTT::Message msg(msgid(), QString("smssync/%1/notify").arg(_deviceid),
+                       jdoc.toJson(QJsonDocument::Compact));
 
     client->publish(msg);
 }
@@ -45,7 +47,8 @@ void MqttDispatcher::acknowledgement(QString id) {
     payload["id"]   = id;
 
     QJsonDocument jdoc(payload);
-    QMQTT::Message msg(msgid(), "smssync/notify", jdoc.toJson(QJsonDocument::Compact));
+    QMQTT::Message msg(msgid(), QString("smssync/%1/notify").arg(_deviceid),
+                    jdoc.toJson(QJsonDocument::Compact));
 
     client->publish(msg);
 
