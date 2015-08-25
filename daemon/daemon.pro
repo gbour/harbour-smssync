@@ -22,10 +22,14 @@ include(qmqtt/qmqtt.pri)
 INCLUDEPATH += $$PWD/qmqtt
 
 OTHER_FILES += \
-    harbour-smssyncd.conf
+    harbour-smssyncd.conf \
+    harbour-smssyncd.service
 
-INSTALLS += target conf
+INSTALLS += target conf systemd
 target.path = /usr/bin
 
 conf.files = $${TARGET}.conf
 conf.path = /etc/xdg/harbour-smssync
+
+systemd.files = $${TARGET}.service
+systemd.path = /usr/lib/systemd/user

@@ -1,0 +1,12 @@
+[Unit]
+Description=SmsSync daemon
+Requires=dbus.socket
+After=pre-user-session.target lipstick.service dbus.socket
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/harbour-smssyncd
+Restart=always
+
+[Install]
+WantedBy=user-session.target

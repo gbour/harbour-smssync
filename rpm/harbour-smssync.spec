@@ -15,12 +15,13 @@ Name:       harbour-smssync
 Summary:    SmsSync for Jolla
 Version:    0.1
 Release:    1
-Group:      Qt/Qt
+Group:      Applications/Internet
 License:    GPL3
-URL:        http://example.org/
+URL:        https://github.com/gbour/harbour-smssync
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-smssync.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
+Requires:   systemd-user-session-targets
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
@@ -28,7 +29,7 @@ BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5DBus)
 
 %description
-Short description of my SailfishOS Application
+Synchronization application for your SMS
 
 
 %prep
@@ -55,11 +56,21 @@ rm -rf %{buildroot}
 %qmake5_install
 
 # >> install post
+mkdir -p %{buildroot}%{_libdir}/systemd/user/user-session.target.wants
+ln -s ../harbour-smssyncd.service %{buildroot}%{_libdir}/systemd/user/user-session.target.wants/
 # << install post
+
+%post
+# >> post
+su nemo -c 'systemctl --user daemon-reload'
+su nemo -c 'systemctl --user try-restart harbour-smssyncd.service'
+# << post
 
 %files
 %defattr(-,root,root,-)
 %{_bindir}
 %{_sysconfdir}/xdg/%{name}/%{name}d.conf
+%{_libdir}/systemd/user/%{name}d.service
+%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service
 # >> files
 # << files

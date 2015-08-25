@@ -4,15 +4,15 @@ Version: 0.1
 Release: 1
 # The contents of the Group field should be one of the groups listed here:
 # http://gitorious.org/meego-developer-tools/spectacle/blobs/master/data/GROUPS
-Group: Qt/Qt
-URL: http://example.org/
+Group: Applications/Internet
+URL: https://github.com/gbour/harbour-smssync
 License: GPL3
 # This must be generated before uploading a package to a remote build service.
 # Usually this line does not need to be modified.
 Sources:
 - '%{name}-%{version}.tar.bz2'
 Description: |
-  Short description of my SailfishOS Application
+  Synchronization application for your SMS
 Configure: none
 # The qtc5 builder inserts macros to allow QtCreator to have fine
 # control over qmake/make execution
@@ -34,6 +34,7 @@ PkgConfigBR:
 # Runtime dependencies which are not automatically detected
 Requires:
   - sailfishsilica-qt5 >= 0.10.9 
+  - systemd-user-session-targets
 
 # All installed files
 Files:
@@ -42,6 +43,8 @@ Files:
 #  - '%{_datadir}/applications/%{name}.desktop'
 #  - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
   - '%{_sysconfdir}/xdg/%{name}/%{name}d.conf'
+  - '%{_libdir}/systemd/user/%{name}d.service'
+  - '%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service'
 
 # For more information about yaml and what's supported in Sailfish OS
 # build system, please see https://wiki.merproject.org/wiki/Spectacle
