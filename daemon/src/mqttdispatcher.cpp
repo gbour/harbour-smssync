@@ -20,30 +20,26 @@ MqttDispatcher::MqttDispatcher(QString deviceid, QString server, quint32 port,
 
     client = new QMQTT::Client(server, port);
     qDebug() << server << port << client;
-    client->autoReconnect();
+    //client->autoReconnect();
 
     pingTimer = new QTimer();
     QObject::connect(pingTimer, SIGNAL(timeout()), this, SLOT(ping()));
+    QObject::connect(client, SIGNAL(connacked(quint8)), this, SLOT(onConnected()));
 }
 
 void MqttDispatcher::connect() {
-    client->connect();
-    qDebug() << client << client->clientId() << client->isConnected() << client->keepalive();
-
     // set a very long keepalive (10 minutes) but short ping (10 secs)
     // ping is slow down (a lot) when phone entering deep sleep mode (up to 1'30'')
     // but we wan't to keep socket opened as long as possible to be able to receive notifications
     client->setKeepAlive(_keepalive);
-    pingTimer->start(_ping);
+    //pingTimer->start(_ping);
+
+    client->connect();
+    qDebug() << client << client->clientId() << client->isConnected() << client->keepalive();
 }
 
 
 void MqttDispatcher::sendMessage(QString dir, QString id, QString from, QString content) {
-    qDebug() << "is connected:" << client->isConnected();
-    if ( !client->isConnected() ) {
-        this->connect();
-    };
-
     QJsonObject payload;
     payload["type"]    = QString("msg");
     payload["dir"]     = dir;
@@ -51,29 +47,53 @@ void MqttDispatcher::sendMessage(QString dir, QString id, QString from, QString 
     payload["from"]    = from;
     payload["content"] = content;
 
-    QJsonDocument jdoc(payload);
-    QMQTT::Message msg(msgid(), QString("smssync/%1/notify").arg(_deviceid),
-                       jdoc.toJson(QJsonDocument::Compact));
+    QString topic = QString("smssync/%1/notify").arg(_deviceid);
 
-    client->publish(msg);
+    // always enqueue message in order to always respect delivery order
+    this->_msgqueue << qMakePair(topic, payload);
+
+    qDebug() << "is connected:" << client->isConnected();
+    if ( !client->isConnected() ) {
+        this->connect();
+        return;
+    };
+
+    // sync send
+    _deliver();
 }
 
 void MqttDispatcher::acknowledgement(QString id) {
-    qDebug() << "is connected:" << this->client->isConnected();
-    if ( !client->isConnected() ) {
-        this->connect();
-    }
-
     QJsonObject payload;
     payload["type"] = QString("ack");
     payload["id"]   = id;
 
+    QString topic = QString("smssync/%1/notify").arg(_deviceid);
+
+    // always enqueue message in order to always respect delivery order
+    this->_msgqueue << qMakePair(topic, payload);
+
+    qDebug() << "is connected:" << this->client->isConnected();
+    if ( !client->isConnected() ) {
+        this->connect();
+        return;
+    }
+
+    // sync send
+    _deliver();
+}
+
+void MqttDispatcher::_deliver() {
+    while( !_msgqueue.isEmpty() ) {
+        QPair<QString,QJsonObject> item = _msgqueue.takeFirst();
+        _send(item.first, item.second);
+    }
+}
+
+inline void MqttDispatcher::_send(QString topic, QJsonObject payload) {
     QJsonDocument jdoc(payload);
-    QMQTT::Message msg(msgid(), QString("smssync/%1/notify").arg(_deviceid),
-                    jdoc.toJson(QJsonDocument::Compact));
+    QMQTT::Message msg(msgid(), topic, jdoc.toJson(QJsonDocument::Compact));
 
     client->publish(msg);
-
 }
 
 /*

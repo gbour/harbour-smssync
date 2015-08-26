@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QJsonObject>
+
 #include "qmqtt_client.h"
 
 class MqttDispatcher : public QObject
@@ -28,16 +30,27 @@ public slots:
     void acknowledgement(QString id);
     void ping();
 
+private slots:
+    void onConnected() {
+        qDebug() << "mqtt connection established";
+        _deliver();
+    }
+
 private:
     quint16 _msgid;
     QString _deviceid;
     int     _ping;
     int     _keepalive;
 
+    QList<QPair<QString, QJsonObject>> _msgqueue;
+
     QMQTT::Client *client;
     QTimer *pingTimer;
 
     void sendMessage(QString dir, QString id, QString from, QString message);
+    void _send(QString topic, QJsonObject payload);
+    void _deliver();
+
     quint16 msgid() {
         return(_msgid++);
     }
