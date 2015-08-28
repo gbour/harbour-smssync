@@ -45,8 +45,15 @@ $> su-devel systemctl restart harbour-smssyncd
 ### desktop side
 
 you can use any MQTT client to *read* sms received on/sent from your Jolla phone.
-For convenience, I provide a simple python client in *desktop.client/* directory.
-This client shows sent & received sms in a notification (displayed for 20 seconds).
+Here is an example using mosquitto client:
+```
+~$>  mosquitto_sub -h localhost -t smssync/#
+{"content": "What's up, bro ?","dir": "in","from": "+33XXXXXXXXX","id": "","type": "msg"}
+
+```
+
+For convenience, I provide a simple python client in *desktop-notification-client/* directory.
+This client display *sent & received sms * as desktop notifications (for 20 seconds).
 
 It connects by default to mqtt server **localhost:1883*
 
