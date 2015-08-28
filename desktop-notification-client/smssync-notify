@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import time
 import json
 import os
@@ -40,6 +41,14 @@ def on_message(obj, userdata, msg):
 
 
 if __name__ == '__main__':
+    (server, port) = ("localhost", 1883)
+    if len(sys.argv) > 1:
+        args = sys.argv[1].split(':')
+        server = args[0]
+
+        if len(args) > 1:
+            port = int(args[1])
+
     client = mosquitto.Mosquitto("desktop")
 
     client.on_message = on_message
@@ -48,7 +57,7 @@ if __name__ == '__main__':
 
     while True:
         try:
-            client.connect("localhost", 1883, 60, True)
+            client.connect(server, port, 60, True)
             client.subscribe("smssync/#", qos=2)
 
             while client.loop() == 0:
