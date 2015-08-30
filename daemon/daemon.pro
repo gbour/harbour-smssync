@@ -8,7 +8,9 @@ CONFIG += console \
     c++11
 
 QT += core network dbus
-PKGCONFIG += TelepathyQt5
+PKGCONFIG += \
+    TelepathyQt5 \
+    Qt5Contacts
 
 HEADERS += \
     src/mqttdispatcher.h \

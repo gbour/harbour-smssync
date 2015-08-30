@@ -29,6 +29,16 @@
 #include <TelepathyQt/PendingReady>
 #include <TelepathyQt/ReceivedMessage>
 
+// not autocompletion using this path
+//#include <Qt5Contacts/QContact>
+#include <qt5/QtContacts/QContact>
+#include <qt5/QtContacts/QContactManager>
+#include <qt5/QtContacts/QContactDetail>
+#include <qt5/QtContacts/QContactPhoneNumber>
+#include <qt5/QtContacts/QContactDetailFilter>
+
+using namespace QtContacts;
+
 #include "smslistener.h"
 
 SmsListener::SmsListener(QObject *parent) :
@@ -40,13 +50,20 @@ SmsListener::SmsListener(QObject *parent) :
     Tp::enableDebug(true);
     Tp::enableWarnings(true);
 
+
+
     // is account name always the same ??
     account = Tp::Account::create(TP_QT_ACCOUNT_MANAGER_BUS_NAME,
                                   "/org/freedesktop/Telepathy/Account/ring/tel/account0");
+
     connect(account->becomeReady(),
             SIGNAL(finished(Tp::PendingOperation*)),
             SLOT(onAccountReady(Tp::PendingOperation *)));
 
+
+    // initialize contacts manager
+    QContactManager contactMgr("org.nemomobile.contacts.sqlite");
+    qDebug() << contactMgr.managerName();
 }
 
 /*
@@ -133,8 +150,28 @@ void SmsListener::onSentMessage(const Tp::Message &msg, Tp::MessageSendingFlags 
                 ")";
     */
 
-    emit SmsSent(token, chan->targetContact()->id(), msg.text());
+    QString contactName = getContact(chan->targetId());
+    emit SmsSent(token, contactName, chan->targetId(), msg.text());
 }
 
 
+QString SmsListener::getContact(QString phoneNumber) {
+    QContactDetailFilter df;
+    df.setDetailType(QContactPhoneNumber::Type, QContactPhoneNumber::FieldNumber);
+    df.setMatchFlags(QContactFilter::MatchPhoneNumber);
+    df.setValue(phoneNumber);
+
+    QList<QContact> contacts = contactMgr.contacts(df);
+    // no matching contact founds
+    if (contacts.length() == 0) {
+        return QString();
+    }
+
+    QList<QContactDetail> details = contacts.first().details(QContactDetail::TypeDisplayLabel);
+    try {
+        return details.first().values().first().toString();
+    } catch (std::exception &e) {}
+
+    return QString();
+}
 

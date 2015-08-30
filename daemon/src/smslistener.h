@@ -29,6 +29,8 @@
 #include <TelepathyQt/SimpleTextObserver>
 #include <TelepathyQt/Message>
 
+#include <qt5/QtContacts/QContactManager>
+
 namespace Tp {
     class PendingOperation;
     class ReceivedMessage;
@@ -41,8 +43,8 @@ public:
     explicit SmsListener(QObject *parent = 0);
 
 signals:
-    void SmsRecv(QString id, QString from, QString content);
-    void SmsSent(QString id, QString to, QString content);
+    void SmsRecv(QString id, QString contactName, QString contactPhoneNumber, QString content);
+    void SmsSent(QString id, QString contactName, QString contactPhoneNumber, QString content);
     void SmsAcked(QString id);
 
 public slots:
@@ -56,6 +58,11 @@ private slots:
 private:
     Tp::AccountPtr account;
     Tp::SimpleTextObserverPtr observer;
+
+    Tp::Contact *sender;
+    QtContacts::QContactManager contactMgr;
+
+    QString getContact(QString phoneNumber);
 };
 
 #endif // SMSLISTENER_H

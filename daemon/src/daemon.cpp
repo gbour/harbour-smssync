@@ -59,14 +59,14 @@ int main(int argc, char *argv[])
 
 
     QObject::connect(&watcher,
-                     SIGNAL(SmsRecv(QString,QString,QString)),
+                     SIGNAL(SmsRecv(QString,QString,QString,QString)),
                      &dispatcher,
-                     SLOT(sendInMessage(QString,QString,QString)));
+                     SLOT(sendInMessage(QString,QString,QString,QString)));
 
     QObject::connect(&watcher,
-                     SIGNAL(SmsSent(QString,QString,QString)),
+                     SIGNAL(SmsSent(QString,QString,QString,QString)),
                      &dispatcher,
-                     SLOT(sendOutMessage(QString,QString,QString)));
+                     SLOT(sendOutMessage(QString,QString,QString,QString)));
 
     QObject::connect(&watcher,
                      SIGNAL(SmsAcked(QString)),

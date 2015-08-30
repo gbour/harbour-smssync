@@ -60,12 +60,13 @@ void MqttDispatcher::connect() {
 }
 
 
-void MqttDispatcher::sendMessage(QString dir, QString id, QString from, QString content) {
+void MqttDispatcher::sendMessage(QString dir, QString id, QString contactName, QString contactPhoneNumber, QString content) {
     QJsonObject payload;
     payload["type"]    = QString("msg");
     payload["dir"]     = dir;
     payload["id"]      = id;
-    payload["from"]    = from;
+    payload["from"]    = contactPhoneNumber;
+    payload["cn"]      = contactName;
     payload["content"] = content;
 
     QString topic = QString("smssync/%1/notify").arg(_deviceid);

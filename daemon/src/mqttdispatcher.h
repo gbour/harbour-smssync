@@ -40,12 +40,12 @@ signals:
 
 public slots:
     void connect();
-    void sendInMessage(QString id, QString from, QString message) {
-        sendMessage("in", id, from, message);
+    void sendInMessage(QString id, QString cn, QString from, QString message) {
+        sendMessage("in", id, cn, from, message);
     };
 
-    void sendOutMessage(QString id, QString from, QString message) {
-        sendMessage("out", id, from, message);
+    void sendOutMessage(QString id, QString cn, QString from, QString message) {
+        sendMessage("out", id, cn, from, message);
     };
 
     void acknowledgement(QString id);
@@ -68,7 +68,7 @@ private:
     QMQTT::Client *client;
     QTimer *pingTimer;
 
-    void sendMessage(QString dir, QString id, QString from, QString message);
+    void sendMessage(QString dir, QString id, QString contactName, QString contactPhoneNumber, QString message);
     void _send(QString topic, QJsonObject payload);
     void _deliver();
 
