@@ -134,7 +134,10 @@ void SmsListener::onReceivedMessage(const Tp::ReceivedMessage &msg, const Tp::Te
         return;
     }
 
-    emit SmsRecv(token, msg.sender()->id(), msg.text());
+
+    QString token = msg.messageToken();
+    QString contactName = getContact(msg.sender().data()->id());
+    emit SmsRecv(token, contactName, msg.sender()->id(), msg.text());
 }
 
 void SmsListener::onSentMessage(const Tp::Message &msg, Tp::MessageSendingFlags flags,
