@@ -44,7 +44,6 @@ Files:
 #  - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
   - '%{_sysconfdir}/xdg/%{name}/%{name}d.conf'
   - '%{_libdir}/systemd/user/%{name}d.service'
-  - '%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service'
 
 # For more information about yaml and what's supported in Sailfish OS
 # build system, please see https://wiki.merproject.org/wiki/Spectacle

@@ -35,9 +35,9 @@ directly on your computer, or on your tablet.
         # MQTT keepalive and ping delay (in seconds)
         keepalive=100
 ```
-* restart smssyncd daemon
+* restart smssyncd daemon (you need to open a shell on your jolla device)
 ```
-$> su-devel systemctl restart harbour-smssyncd
+$> systemctl --user restart harbour-smssyncd
 ```
 
 *ENJOY :)*
@@ -51,6 +51,7 @@ Here is an example using mosquitto client:
 {"content": "What's up, bro ?","dir": "in","from": "+33XXXXXXXXX","id": "","type": "msg"}
 
 ```
+
 
 For convenience, I provide a simple python client in *desktop-notification-client/* directory.
 This client display *sent & received sms * as desktop notifications (for 20 seconds).

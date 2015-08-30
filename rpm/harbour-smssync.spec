@@ -57,20 +57,25 @@ rm -rf %{buildroot}
 
 # >> install post
 mkdir -p %{buildroot}%{_libdir}/systemd/user/user-session.target.wants
-ln -s ../harbour-smssyncd.service %{buildroot}%{_libdir}/systemd/user/user-session.target.wants/
 # << install post
 
 %post
 # >> post
-su nemo -c 'systemctl --user daemon-reload'
-su nemo -c 'systemctl --user try-restart harbour-smssyncd.service'
+systemctl-user daemon-reload
+systemctl-user restart harbour-smssyncd
+systemctl-user enable harbour-smssyncd
 # << post
+
+%preun
+# >> preun
+systemctl-user stop harbour-smssyncd
+systemctl-user disable harbour-smssyncd
+# << preun
 
 %files
 %defattr(-,root,root,-)
 %{_bindir}
 %{_sysconfdir}/xdg/%{name}/%{name}d.conf
 %{_libdir}/systemd/user/%{name}d.service
-%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service
 # >> files
 # << files
