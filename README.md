@@ -4,15 +4,15 @@ SMS synchronization daemon for Jolla devices
 Everything is connected now. You want to be able to read the sms you received on your phone
 directly on your computer, or on your tablet.
 
-**smssync** fill this gap, allowing to synchronize your sms with you desktop computer or your tablet.
+**smssync** fill the gap, allowing to synchronize your sms with you desktop computer or your tablet.
 
 
 
-**WARNING: this sofware is is alpha stage. use at your own risks**
+**WARNING: this sofware is in alpha stage. use at your own risks**
 
-* no configuration interface
-* require a dedicated, reacheable MQTT server (such as *mosquitto*)
-* no MQTT/SSL support yet, nor authentication
+* no configuration interface yet
+* requires a dedicated, reacheable MQTT server (such as *mosquitto*)
+* no MQTT/SSL nor authentication support yet
 
 ! do not use it for sensible informations, or only on a local network you control !
 
@@ -30,7 +30,7 @@ directly on your computer, or on your tablet.
         # mqtt server port
         port=1883
 
-        # devicce name (used in MQTT topic)
+        # device name (used in MQTT topic)
         deviceid="jolla"
         # MQTT keepalive and ping delay (in seconds)
         keepalive=100
@@ -56,7 +56,7 @@ Here is an example using mosquitto client:
 For convenience, I provide a simple python client in *desktop-notification-client/* directory.
 This client display *sent & received sms * as desktop notifications (for 20 seconds).
 
-It connects by default to mqtt server **localhost:1883*
+It connects by default to mqtt server *localhost:1883*
 
 
 ```
@@ -68,6 +68,7 @@ It connects by default to mqtt server **localhost:1883*
 ## Roadmap
 
 * configuration interface
+* send sms from remote device
 * sms read status sync (jolla -> desktop and desktop -> jolla)
 * SSL encryption for MQTT notifications
 * MQTT authentication

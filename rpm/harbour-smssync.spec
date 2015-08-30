@@ -13,7 +13,7 @@ Name:       harbour-smssync
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    SmsSync for Jolla
-Version:    0.1
+Version:    0.1.0
 Release:    1
 Group:      Applications/Internet
 License:    GPL3
@@ -59,18 +59,18 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_libdir}/systemd/user/user-session.target.wants
 # << install post
 
+%preun
+# >> preun
+systemctl-user stop harbour-smssyncd
+systemctl-user disable harbour-smssyncd
+# << preun
+
 %post
 # >> post
 systemctl-user daemon-reload
 systemctl-user restart harbour-smssyncd
 systemctl-user enable harbour-smssyncd
 # << post
-
-%preun
-# >> preun
-systemctl-user stop harbour-smssyncd
-systemctl-user disable harbour-smssyncd
-# << preun
 
 %files
 %defattr(-,root,root,-)
