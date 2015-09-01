@@ -117,10 +117,8 @@ void SmsListener::onAccountReady(Tp::PendingOperation *op) {
  */
 void SmsListener::onReceivedMessage(const Tp::ReceivedMessage &msg, const Tp::TextChannelPtr &chan) {
     Q_UNUSED(chan);
-
     qDebug() << "received msg:" << msg.text() << "from" << msg.sender()->id();
 
-    QString token = "";
     if( msg.isDeliveryReport() ) {
         // 4 - DeliveryStatusAccepted
         // 1 - DeliveryStatusDelivered
@@ -128,16 +126,19 @@ void SmsListener::onReceivedMessage(const Tp::ReceivedMessage &msg, const Tp::Te
                     "from" << msg.deliveryDetails().originalToken();
 
         if( msg.deliveryDetails().status() == Tp::DeliveryStatusDelivered ) {
-            emit SmsAcked(msg.deliveryDetails().originalToken());
+            Message *m = new Message(MessageType::ACKNOWLEDGEMENT, msg.deliveryDetails().originalToken());
+            emit SmsAcked(m);
         }
 
         return;
     }
 
 
-    QString token = msg.messageToken();
-    QString contactName = getContact(msg.sender().data()->id());
-    emit SmsRecv(token, contactName, msg.sender()->id(), msg.text());
+    Message *m = new Message(MessageType::INCOMING, msg.messageToken());
+    m->setContact(getContact(msg.sender()->id()));
+    m->setContent(msg.text());
+
+    emit SmsRecv(m);
 }
 
 void SmsListener::onSentMessage(const Tp::Message &msg, Tp::MessageSendingFlags flags,
@@ -153,28 +154,34 @@ void SmsListener::onSentMessage(const Tp::Message &msg, Tp::MessageSendingFlags 
                 ")";
     */
 
-    QString contactName = getContact(chan->targetId());
-    emit SmsSent(token, contactName, chan->targetId(), msg.text());
+    Message *m = new Message(MessageType::OUTGOING, token);
+    m->setContent(msg.text());
+    m->setContact(getContact(chan->targetId()));
+
+    emit SmsSent(m);
 }
 
 
-QString SmsListener::getContact(QString phoneNumber) {
+Contact* SmsListener::getContact(QString phoneNumber) {
     QContactDetailFilter df;
     df.setDetailType(QContactPhoneNumber::Type, QContactPhoneNumber::FieldNumber);
     df.setMatchFlags(QContactFilter::MatchPhoneNumber);
     df.setValue(phoneNumber);
 
+    Contact* contact = new Contact(phoneNumber);
+
     QList<QContact> contacts = contactMgr.contacts(df);
     // no matching contact founds
     if (contacts.length() == 0) {
-        return QString();
+        return contact;
     }
 
     QList<QContactDetail> details = contacts.first().details(QContactDetail::TypeDisplayLabel);
     try {
-        return details.first().values().first().toString();
+        QString name = details.first().values().first().toString();
+        contact->setName(name);
     } catch (std::exception &e) {}
 
-    return QString();
+    return contact;
 }
 

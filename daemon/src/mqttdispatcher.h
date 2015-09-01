@@ -27,6 +27,7 @@
 #include <QJsonObject>
 
 #include "qmqtt_client.h"
+#include "message.h"
 
 class MqttDispatcher : public QObject
 {
@@ -40,15 +41,7 @@ signals:
 
 public slots:
     void connect();
-    void sendInMessage(QString id, QString cn, QString from, QString message) {
-        sendMessage("in", id, cn, from, message);
-    };
-
-    void sendOutMessage(QString id, QString cn, QString from, QString message) {
-        sendMessage("out", id, cn, from, message);
-    };
-
-    void acknowledgement(QString id);
+    void sendMessage(Message *msg);
     void ping();
 
 private slots:
@@ -63,13 +56,12 @@ private:
     int     _ping;
     int     _keepalive;
 
-    QList<QPair<QString, QJsonObject>> _msgqueue;
+    QList<const Message*> _msgqueue;
 
     QMQTT::Client *client;
     QTimer *pingTimer;
 
-    void sendMessage(QString dir, QString id, QString contactName, QString contactPhoneNumber, QString message);
-    void _send(QString topic, QJsonObject payload);
+    void _send(const Message* msg);
     void _deliver();
 
     quint16 msgid() {

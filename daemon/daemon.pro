@@ -14,11 +14,15 @@ PKGCONFIG += \
 
 HEADERS += \
     src/mqttdispatcher.h \
-    src/smslistener.h
+    src/smslistener.h \
+    src/message.h \
+    src/contact.h
 
 SOURCES += src/daemon.cpp \
     src/mqttdispatcher.cpp \
-    src/smslistener.cpp
+    src/smslistener.cpp \
+    src/message.cpp \
+    src/contact.cpp
 
 include(qmqtt/qmqtt.pri)
 INCLUDEPATH += $$PWD/qmqtt

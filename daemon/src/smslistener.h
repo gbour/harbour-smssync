@@ -31,6 +31,9 @@
 
 #include <qt5/QtContacts/QContactManager>
 
+#include "message.h"
+#include "contact.h"
+
 namespace Tp {
     class PendingOperation;
     class ReceivedMessage;
@@ -43,9 +46,9 @@ public:
     explicit SmsListener(QObject *parent = 0);
 
 signals:
-    void SmsRecv(QString id, QString contactName, QString contactPhoneNumber, QString content);
-    void SmsSent(QString id, QString contactName, QString contactPhoneNumber, QString content);
-    void SmsAcked(QString id);
+    void SmsRecv(Message *msg);
+    void SmsSent(Message *msg);
+    void SmsAcked(Message *msg);
 
 public slots:
 
@@ -62,7 +65,7 @@ private:
     Tp::Contact *sender;
     QtContacts::QContactManager contactMgr;
 
-    QString getContact(QString phoneNumber);
+    Contact* getContact(QString phoneNumber);
 };
 
 #endif // SMSLISTENER_H

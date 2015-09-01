@@ -59,20 +59,10 @@ void MqttDispatcher::connect() {
     qDebug() << client << client->clientId() << client->isConnected() << client->keepalive();
 }
 
-
-void MqttDispatcher::sendMessage(QString dir, QString id, QString contactName, QString contactPhoneNumber, QString content) {
-    QJsonObject payload;
-    payload["type"]    = QString("msg");
-    payload["dir"]     = dir;
-    payload["id"]      = id;
-    payload["from"]    = contactPhoneNumber;
-    payload["cn"]      = contactName;
-    payload["content"] = content;
-
-    QString topic = QString("smssync/%1/notify").arg(_deviceid);
-
+void MqttDispatcher::sendMessage(Message *msg) {
     // always enqueue message in order to always respect delivery order
-    this->_msgqueue << qMakePair(topic, payload);
+    qDebug() << "enqueuing msg id" << msg->id();
+    this->_msgqueue.append(msg);
 
     qDebug() << "is connected:" << client->isConnected();
     if ( !client->isConnected() ) {
@@ -84,38 +74,21 @@ void MqttDispatcher::sendMessage(QString dir, QString id, QString contactName, Q
     _deliver();
 }
 
-void MqttDispatcher::acknowledgement(QString id) {
-    QJsonObject payload;
-    payload["type"] = QString("ack");
-    payload["id"]   = id;
+void MqttDispatcher::_deliver() {
+    qDebug() << "delivering" << _msgqueue.length() << "messages";
+    while( !_msgqueue.isEmpty() ) {
+        _send(_msgqueue.takeFirst());
+    }
+}
 
+inline void MqttDispatcher::_send(const Message *msg) {
+    qDebug() << "sending msg" << msg->id();
     QString topic = QString("smssync/%1/notify").arg(_deviceid);
 
-    // always enqueue message in order to always respect delivery order
-    this->_msgqueue << qMakePair(topic, payload);
+    QJsonDocument jdoc(*msg->toJSON());
+    QMQTT::Message qmsg(msgid(), topic, jdoc.toJson(QJsonDocument::Compact));
 
-    qDebug() << "is connected:" << this->client->isConnected();
-    if ( !client->isConnected() ) {
-        this->connect();
-        return;
-    }
-
-    // sync send
-    _deliver();
-}
-
-void MqttDispatcher::_deliver() {
-    while( !_msgqueue.isEmpty() ) {
-        QPair<QString,QJsonObject> item = _msgqueue.takeFirst();
-        _send(item.first, item.second);
-    }
-}
-
-inline void MqttDispatcher::_send(QString topic, QJsonObject payload) {
-    QJsonDocument jdoc(payload);
-    QMQTT::Message msg(msgid(), topic, jdoc.toJson(QJsonDocument::Compact));
-
-    client->publish(msg);
+    client->publish(qmsg);
 }
 
 /*

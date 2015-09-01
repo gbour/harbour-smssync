@@ -27,6 +27,7 @@
 #include "mqttdispatcher.h"
 #include "smslistener.h"
 
+#include "message.h"
 
 int main(int argc, char *argv[])
 {
@@ -53,25 +54,25 @@ int main(int argc, char *argv[])
     dispatcher.connect();
     settings.endGroup();
 
+
     // SMS listener
     SmsListener watcher;
     Q_UNUSED(watcher);
 
+    QObject::connect(&watcher,
+                     SIGNAL(SmsRecv(Message*)),
+                     &dispatcher,
+                     SLOT(sendMessage(Message*)));
 
     QObject::connect(&watcher,
-                     SIGNAL(SmsRecv(QString,QString,QString,QString)),
+                     SIGNAL(SmsSent(Message*)),
                      &dispatcher,
-                     SLOT(sendInMessage(QString,QString,QString,QString)));
+                     SLOT(sendMessage(Message*)));
 
     QObject::connect(&watcher,
-                     SIGNAL(SmsSent(QString,QString,QString,QString)),
+                     SIGNAL(SmsAcked(Message*)),
                      &dispatcher,
-                     SLOT(sendOutMessage(QString,QString,QString,QString)));
-
-    QObject::connect(&watcher,
-                     SIGNAL(SmsAcked(QString)),
-                     &dispatcher,
-                     SLOT(acknowledgement(QString)));
+                     SLOT(sendMessage(Message*)));
 
     return app.exec();
 }
