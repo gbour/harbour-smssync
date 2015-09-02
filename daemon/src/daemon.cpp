@@ -21,6 +21,7 @@
 
 #include <signal.h>
 #include <QDebug>
+#include <QObject>
 #include <QSettings>
 #include <QCoreApplication>
 
@@ -29,11 +30,85 @@
 
 #include "message.h"
 
+#ifdef QT_DEBUG
+
+class Unittest : public QObject {
+    Q_OBJECT
+
+public:
+    MqttDispatcher *m_dispatcher;
+    QTimer *m_timer;
+    int m_i;
+
+    Unittest(MqttDispatcher *dispatcher) : QObject(0) {
+        qDebug() << "starting unittest";
+        m_dispatcher = dispatcher;
+        m_timer      = new QTimer();
+        m_i          = 1;
+
+        QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(onTick()));
+        m_timer->start(1000);
+    }
+
+
+public slots:
+    void onTick() {
+        qDebug() << "timer fired";
+
+        Message *msg = new Message(MessageType::INCOMING, QString::number(m_i++));
+        msg->setContact(new Contact(QString("+33600000001")));
+        msg->setContent(QString("Hi Pal! %1").arg(QString::number(qrand())));
+        m_dispatcher->sendMessage(msg);
+    }
+
+
+};
+
+#include "daemon.moc"
+
+enum ENV {
+    UNKNOWN = 0,
+    EMULATOR,
+    J1PHONE,
+    J1TABLET
+};
+
+const QString _qEnvString[] { "UNKNOWN", "EMULATOR", "J1PHONE", "J1TABLET" };
+
+
+ENV env() {
+    QFile file("/etc/meego-release");
+    if(!file.open(QIODevice::ReadOnly)) {
+        return ENV::UNKNOWN;
+    }
+
+    QTextStream in(&file);
+    QString rel = in.readAll().toLower();
+    file.close();
+
+    if(rel.contains("emulator")) {
+        return ENV::EMULATOR;
+    }
+
+    if(rel.contains("-armv7hl")) {
+        return ENV::J1PHONE;
+    }
+
+    return ENV::UNKNOWN;
+};
+
+#endif
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     app.setApplicationName("harbour-smssyncd");
     app.setOrganizationName("gbour");
+
+#ifdef QT_DEBUG
+    ENV curenv = env();
+    qDebug() << "RUNNING ENV:" << _qEnvString[curenv];
+#endif
 
     // does not work in debug mode, where application & configuration are
     // deployed in /opt/sdk/harbour-smssync
@@ -73,6 +148,17 @@ int main(int argc, char *argv[])
                      SIGNAL(SmsAcked(Message*)),
                      &dispatcher,
                      SLOT(sendMessage(Message*)));
+
+
+#ifdef QT_DEBUG
+    // TESTING ONLY
+    Unittest *test;
+    Q_UNUSED(test);
+
+    if(curenv == ENV::EMULATOR) {
+        test = new Unittest(&dispatcher);
+    }
+#endif
 
     return app.exec();
 }
