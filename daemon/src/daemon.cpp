@@ -56,7 +56,10 @@ public slots:
         qDebug() << "timer fired";
 
         Message *msg = new Message(MessageType::INCOMING, QString::number(m_i++));
-        msg->setContact(new Contact(QString("+33600000001")));
+
+        Contact *c = new Contact("+33600000001");
+        c->setName("John Doe");
+        msg->setContact(c);
         msg->setContent(QString("Hi Pal! %1").arg(QString::number(qrand())));
         m_dispatcher->sendMessage(msg);
     }

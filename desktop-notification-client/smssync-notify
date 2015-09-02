@@ -14,9 +14,10 @@ uri = os.path.abspath(os.path.curdir) + "/harbour-smssync-mini.png"
 
 def msg(payload):
     n = notify2.Notification(
-        "{0} {1}".format(
-            ">" if payload.get('dir') == 'in' else '<',
-            payload.get('from')
+        "{0}: {1} ({2})".format(
+            "received from" if payload.get('dir') == 'in' else 'sent to',
+            payload.get('contact', {}).get('name'),
+            payload.get('contact', {}).get('phoneNumber')
         ),
         "\n" + payload.get('content'),
         uri
