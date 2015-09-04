@@ -5,6 +5,7 @@ import time
 import json
 import os
 import notify2
+import argparse
 import mosquitto
 
 notify2.init("smssync")
@@ -29,8 +30,9 @@ def msg(payload):
 
 ###
 
-def on_connect(*rc):
-    pass
+def on_connect(mosq, userdata, rc):
+    if rc != 0:
+        print("connection failed:", rc)
 
 def on_message(obj, userdata, msg):
     # smssync/jollahq/notify {"content": "Grec","dir": "in","from": "+336XXXXXXXXXX","id": "","type": "msg"}
@@ -42,13 +44,18 @@ def on_message(obj, userdata, msg):
 
 
 if __name__ == '__main__':
-    (server, port) = ("localhost", 1883)
-    if len(sys.argv) > 1:
-        args = sys.argv[1].split(':')
-        server = args[0]
-
-        if len(args) > 1:
-            port = int(args[1])
+    parser = argparse.ArgumentParser(description='Smssync notification client')
+    parser.add_argument('--server', metavar='server', type=str, default='localhost',
+                       help='MQTT server')
+    parser.add_argument('--port'  , metavar='port', type=int, default=1883,
+                       help='MQTT port')
+    parser.add_argument('--ssl', action='store_true',
+                       help='connect using SSL protocol')
+    parser.add_argument('--cacert', metavar='cacert', type=str,
+                       help='SSL CA certificate')
+    args = parser.parse_args()
+    if args.ssl and args.cacert is None:
+        print("--cacert parameter is required when SSL mode activated"); sys.exit(1)
 
     client = mosquitto.Mosquitto("desktop")
 
@@ -58,11 +65,19 @@ if __name__ == '__main__':
 
     while True:
         try:
-            client.connect(server, port, 60, True)
+            client.connect(args.server, args.port, 60, True)
+            # TLS configuration
+            if args.ssl:
+                client.tls_insecure_set(True) # disable server hostname verification
+                client.tls_set(ca_certs=args.cacert, tls_version=3)
+
             client.subscribe("smssync/#", qos=2)
 
-            while client.loop() == 0:
-                pass
+            while True:
+                ret = client.loop()
+                if ret > 0:
+                    print("err:", mosquitto.error_string(ret))
+                    break
 
         except Exception as e:
             print(e)

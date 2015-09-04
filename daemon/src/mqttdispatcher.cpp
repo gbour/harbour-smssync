@@ -39,8 +39,9 @@ MqttDispatcher::MqttDispatcher(QString deviceid, QString server, quint32 port,
     _ping      = ping * 1000; // store in ms
     _keepalive = keepalive;
 
-    client = new QMQTT::Client(server, port);
-    qDebug() << server << port << client;
+    client = new QMQTT::Client(server, port, QMQTT::Transport::SSL);
+    qDebug() << server << port << client <<
+                "(" << QMQTT::QTransportString(QMQTT::Transport::SSL) << "transport)";
     //client->autoReconnect();
 
     pingTimer = new QTimer();
