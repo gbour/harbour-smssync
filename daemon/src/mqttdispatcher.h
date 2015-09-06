@@ -42,7 +42,6 @@ signals:
 public slots:
     void connect();
     void sendMessage(Message *msg);
-    void ping();
 
 private slots:
     void onConnected() {

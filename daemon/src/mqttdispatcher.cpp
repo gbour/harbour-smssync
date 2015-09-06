@@ -44,8 +44,6 @@ MqttDispatcher::MqttDispatcher(QString deviceid, QString server, quint32 port,
                 "(" << QMQTT::QTransportString(QMQTT::Transport::SSL) << "transport)";
     //client->autoReconnect();
 
-    pingTimer = new QTimer();
-    QObject::connect(pingTimer, SIGNAL(timeout()), this, SLOT(ping()));
     QObject::connect(client, SIGNAL(connacked(quint8)), this, SLOT(onConnected()));
 }
 
@@ -90,22 +88,5 @@ inline void MqttDispatcher::_send(const Message *msg) {
     QMQTT::Message qmsg(msgid(), topic, jdoc.toJson(QJsonDocument::Compact));
 
     client->publish(qmsg);
-}
-
-/*
- * we don't send ping nor reconnects when client is disconnected
- * connection will be reestablished when we'll send a message
- *
- */
-void MqttDispatcher::ping() {
-    if ( !client->isConnected() ) {
-        qDebug() << "currently disconnect, stopping ping timer";
-
-        pingTimer->stop();
-        return;
-    }
-
-    qDebug() << "send ping" << QTime::currentTime();
-    client->ping();
 }
 
