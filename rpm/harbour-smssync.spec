@@ -13,10 +13,10 @@ Name:       harbour-smssync
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    SmsSync for Jolla
-Version:    0.1.0
+Version:    0.2.0
 Release:    1
 Group:      Applications/Internet
-License:    GPL3
+License:    GPLv3
 URL:        https://github.com/gbour/harbour-smssync
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-smssync.yaml

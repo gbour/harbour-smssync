@@ -8,7 +8,11 @@
 # * date Author's Name <author's email> version-release
 # - Summary of changes
 
+* Sat Sep 12 2015 Guillaume Bour <guillaume@bour.cc> 0.2.0-1
+- add contact name if available in incoming/outgoing sms notifications
+- add network message id in sms notifications (in/out/ack)
+- use SSL as MQTT transport layer (mandatory)
+
 * Sun Aug 30 2015 Guillaume Bour <guillaume@bour.cc> 0.1.0-1
 - first release
 - notifying incoming and outgoing sms's to mqtt server
-
