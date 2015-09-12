@@ -12,11 +12,15 @@ directly on your computer, or on your tablet.
 
 * no configuration interface yet
 * requires a dedicated, reacheable MQTT server (such as *mosquitto*)
-* no MQTT/SSL nor authentication support yet
+* SSL required, but low security (no certificate validation or hostname check)
+* no authentication support yet
 
 ! do not use it for sensible informations, or only on a local network you control !
 
 ## Configuration ##
+
+**NOTE: SSL is mandatory, so you need to configure your MQTT server in order to accept
+SSL connections**
 
 ### jolla application
 
@@ -28,7 +32,7 @@ directly on your computer, or on your tablet.
         # mqtt server ip address
         server="127.0.0.1"
         # mqtt server port
-        port=1883
+        port=8883
 
         # device name (used in MQTT topic)
         deviceid="jolla"
@@ -48,7 +52,13 @@ you can use any MQTT client to *read* sms received on/sent from your Jolla phone
 Here is an example using mosquitto client:
 ```
 ~$>  mosquitto_sub -h localhost -t smssync/#
-{"content": "What's up, bro ?","dir": "in","from": "+33XXXXXXXXX","id": "","type": "msg"}
+{
+  "type": "msg",
+  "dir": "in",
+  "id": "c7a4ba96-8233-408e-8922-653fd1baec2d",
+  "content": "What's up, bro?",
+  "contact": {"name": "John Doe","phoneNumber": "+33XXXXXXXXX"}
+}
 
 ```
 
@@ -60,7 +70,18 @@ It connects by default to mqtt server *localhost:1883*
 
 
 ```
-~/harbour-smssync $> ./desktop-notification-client/smssync-notify [mqtt-server:port]
+~/harbour-smssync $> ./desktop-notification-client/smssync-notify --help
+usage: smssync-notify [-h] [--server server] [--port port] [--ssl]
+                      [--cacert cacert]
+
+Smssync notification client
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --server server  MQTT server
+  --port port      MQTT port
+  --ssl            connect using SSL protocol
+  --cacert cacert  SSL CA certificate
 ```
 
 ![smssync-notify](https://raw.githubusercontent.com/gbour/harbour-smssync/master/desktop-notification-client/resources/screenshot.png)
