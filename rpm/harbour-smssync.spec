@@ -61,8 +61,10 @@ mkdir -p %{buildroot}%{_libdir}/systemd/user/user-session.target.wants
 
 %preun
 # >> preun
-systemctl-user stop harbour-smssyncd
-systemctl-user disable harbour-smssyncd
+if [ "$1" = "0" ]; then
+  systemctl-user stop harbour-smssyncd
+  systemctl-user disable harbour-smssyncd
+fi
 # << preun
 
 %post
